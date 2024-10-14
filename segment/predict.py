@@ -1,47 +1,9 @@
-# Ultralytics YOLOv5 🚀, AGPL-3.0 license
-"""
-Run YOLOv5 segmentation inference on images, videos, directories, streams, etc.
-
-Usage - sources:
-    $ python segment/predict.py --weights yolov5s-seg.pt --source 0                               # webcam
-                                                                  img.jpg                         # image
-                                                                  vid.mp4                         # video
-                                                                  screen                          # screenshot
-                                                                  path/                           # directory
-                                                                  list.txt                        # list of images
-                                                                  list.streams                    # list of streams
-                                                                  'path/*.jpg'                    # glob
-                                                                  'https://youtu.be/LNwODJXcvt4'  # YouTube
-                                                                  'rtsp://example.com/media.mp4'  # RTSP, RTMP, HTTP stream
-
-Usage - formats:
-    $ python segment/predict.py --weights yolov5s-seg.pt                 # PyTorch
-                                          yolov5s-seg.torchscript        # TorchScript
-                                          yolov5s-seg.onnx               # ONNX Runtime or OpenCV DNN with --dnn
-                                          yolov5s-seg_openvino_model     # OpenVINO
-                                          yolov5s-seg.engine             # TensorRT
-                                          yolov5s-seg.mlmodel            # CoreML (macOS-only)
-                                          yolov5s-seg_saved_model        # TensorFlow SavedModel
-                                          yolov5s-seg.pb                 # TensorFlow GraphDef
-                                          yolov5s-seg.tflite             # TensorFlow Lite
-                                          yolov5s-seg_edgetpu.tflite     # TensorFlow Edge TPU
-                                          yolov5s-seg_paddle_model       # PaddlePaddle
-"""
-
 import argparse
 import os
 import platform
 import sys
 from pathlib import Path
-
 import torch
-
-FILE = Path(__file__).resolve()
-ROOT = FILE.parents[1]  # YOLOv5 root directory
-if str(ROOT) not in sys.path:
-    sys.path.append(str(ROOT))  # add ROOT to PATH
-ROOT = Path(os.path.relpath(ROOT, Path.cwd()))  # relative
-
 from ultralytics.utils.plotting import Annotator, colors, save_one_box
 
 from models.common import DetectMultiBackend
@@ -65,6 +27,11 @@ from utils.general import (
 from utils.segment.general import masks2segments, process_mask, process_mask_native
 from utils.torch_utils import select_device, smart_inference_mode
 
+FILE = Path(__file__).resolve()
+ROOT = FILE.parents[1]  # YOLOv5 root directory
+if str(ROOT) not in sys.path:
+    sys.path.append(str(ROOT))  # add ROOT to PATH
+ROOT = Path(os.path.relpath(ROOT, Path.cwd()))  # relative
 
 @smart_inference_mode()
 def run(
@@ -209,7 +176,7 @@ def run(
                     if save_img or save_crop or view_img:  # Add bbox to image
                         c = int(cls)  # integer class
                         label = None if hide_labels else (names[c] if hide_conf else f"{names[c]} {conf:.2f}")
-                        annotator.box_label(xyxy, label, color=colors(c, True))
+                        #annotator.box_label(xyxy, label, color=colors(c, True))
                         # annotator.draw.polygon(segments[j], outline=colors(c, True), width=3)
                     if save_crop:
                         save_one_box(xyxy, imc, file=save_dir / "crops" / names[c] / f"{p.stem}.jpg", BGR=True)
@@ -262,7 +229,7 @@ def parse_opt():
     output preferences.
     """
     parser = argparse.ArgumentParser()
-    parser.add_argument("--weights", nargs="+", type=str, default=ROOT / "yolov5s-seg.pt", help="model path(s)")
+    parser.add_argument("--weights", nargs="+", type=str, default="yolov5s-seg.pt", help="model path(s)")
     parser.add_argument("--source", type=str, default=ROOT / "data/images", help="file/dir/URL/glob/screen/0(webcam)")
     parser.add_argument("--data", type=str, default=ROOT / "data/coco128.yaml", help="(optional) dataset.yaml path")
     parser.add_argument("--imgsz", "--img", "--img-size", nargs="+", type=int, default=[640], help="inference size h,w")
@@ -284,8 +251,8 @@ def parse_opt():
     parser.add_argument("--name", default="exp", help="save results to project/name")
     parser.add_argument("--exist-ok", action="store_true", help="existing project/name ok, do not increment")
     parser.add_argument("--line-thickness", default=3, type=int, help="bounding box thickness (pixels)")
-    parser.add_argument("--hide-labels", default=False, action="store_true", help="hide labels")
-    parser.add_argument("--hide-conf", default=False, action="store_true", help="hide confidences")
+    parser.add_argument("--hide-labels", default=True, action="store_true", help="hide labels")
+    parser.add_argument("--hide-conf", default=True, action="store_true", help="hide confidences")
     parser.add_argument("--half", action="store_true", help="use FP16 half-precision inference")
     parser.add_argument("--dnn", action="store_true", help="use OpenCV DNN for ONNX inference")
     parser.add_argument("--vid-stride", type=int, default=1, help="video frame-rate stride")
